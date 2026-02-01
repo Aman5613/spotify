@@ -12,11 +12,12 @@ const userSchema = mongoose.Schema({
     },
     password  :{
         type : String,
-        required : () => !this.googleId,
+        required : function() {
+            return !this.googleId;
+        },
     },
     googleId : {
         type : String,
-        required : () => !this.password,
         unique : true,
     },
     role : {
