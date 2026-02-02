@@ -90,6 +90,8 @@ export async function googleOAuthCallback(req, res) {
 
       res.cookie("token", token);
 
+      res.redirect(config.FRONTEND_URL);
+
       return res.status(200).json({
         message: "Google user login successful",
         success: true,
@@ -119,6 +121,8 @@ export async function googleOAuthCallback(req, res) {
 
       await publishToQueue("user_registered", newUser);  // Notify other services about new user registration
 
+      res.redirect(config.FRONTEND_URL);
+
       return res.status(201).json({
         message: "Google user registration successful",
         success: true,
@@ -133,5 +137,52 @@ export async function googleOAuthCallback(req, res) {
       success: false,
       error: true,
     });
+  }
+}
+
+export async function loginUser(req, res){
+  try {
+
+    const { email, password } = req.body;
+
+    const existingUser = await userModel.findOne({ email });
+    if(!existingUser){
+      return res.status(400).json({
+        message : "Invalid email or password",
+        success : false,
+        error : true
+      })
+    }
+    const isPasswordMatch = await bcrypt.compare(password, existingUser.password);
+    if(!isPasswordMatch){
+      return res.status(400).json({
+        message : "Invalid email or password",
+        success : false,
+        error : true
+      })
+    }
+    const token = jwt.sign(
+      {
+        id: existingUser._id,
+        role: existingUser.role,
+      },
+      config.JWT_SECRET,
+      { expiresIn: "7d" },
+    );
+    res.cookie("token", token);
+
+    return res.status(200).json({
+      message : "User logged in successfully",
+      success : true,
+      error : false,
+      data : existingUser
+    })
+    
+  } catch (error) {
+    return res.status(500).json({
+      message : "Internal server error" + error.message || error,
+      success : false,
+      error : true
+    })
   }
 }

@@ -13,6 +13,7 @@ const _config = {
 
     RABBITMQ_URI: process.env.RABBITMQ_URI,
 
+    FRONTEND_URL: process.env.FRONTEND_URL,
 }
 
 export default _config;

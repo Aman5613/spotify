@@ -9,6 +9,8 @@ router.post('/register', validationMiddleware.validateRegistration, authControll
 
 router.get("/google",passport.authenticate("google", { scope: ["profile", "email"] }));
 
+router.post('/login', validationMiddleware.validateLogin, authController.loginUser);
+
 router.get("/google/callback",passport.authenticate("google", { session: false }), authController.googleOAuthCallback);
 
 export default router;
