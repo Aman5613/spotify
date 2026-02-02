@@ -9,7 +9,8 @@ const _config = {
     REFRESH_TOKEN: process.env.REFRESH_TOKEN,
     EMAIL_USER: process.env.EMAIL_USER,
     JWT_SECRET: process.env.JWT_SECRET,
-    MONGO_URI: process.env.MONGO_URI
+    MONGO_URI: process.env.MONGO_URI,
+    RABBITMQ_URI: process.env.RABBITMQ_URI
 }
 
 export default Object.freeze(_config); // Freeze to prevent modifications

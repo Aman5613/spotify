@@ -5,6 +5,8 @@ const userSchema = mongoose.Schema({
         type : String,
         required : true,
         unique : true,
+        lowercase : true,
+        trim : true
     },
     fullName : {
         firstName : { type : String, required : true},
@@ -19,6 +21,7 @@ const userSchema = mongoose.Schema({
     googleId : {
         type : String,
         unique : true,
+        sparse : true, // allows multiple null values
     },
     role : {
         type : String,

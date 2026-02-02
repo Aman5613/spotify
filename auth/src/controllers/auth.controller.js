@@ -1,5 +1,6 @@
 import userModel from "../models/user.model.js";
 import config from "../config/config.js";
+import { publishToQueue } from "../broker/rabbit.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
@@ -46,7 +47,9 @@ export async function registerUser(req, res) {
     );
 
     res.cookie("token", token);
-
+    
+    await publishToQueue("user_registered", newUser);
+    
     return res.status(201).json({
       message: "user registered successfully",
       success: true,
@@ -113,6 +116,8 @@ export async function googleOAuthCallback(req, res) {
         { expiresIn: "7d" },
       );
       res.cookie("token", token);
+
+      await publishToQueue("user_registered", newUser);  // Notify other services about new user registration
 
       return res.status(201).json({
         message: "Google user registration successful",

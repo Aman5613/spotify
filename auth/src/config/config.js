@@ -11,6 +11,8 @@ const _config = {
 
     CLIENT_SECRET: process.env.CLIENT_SECRET,
 
+    RABBITMQ_URI: process.env.RABBITMQ_URI,
+
 }
 
 export default _config;
