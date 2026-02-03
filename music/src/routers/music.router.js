@@ -19,6 +19,8 @@ router.post(
   musicController.uploadMusicController,
 );
 
+router.get("/getSongs", authMiddleware.artistAuthMiddleware, musicController.getAllSongsController);
+
 
 
 export default router;

@@ -16,7 +16,7 @@ export async function artistAuthMiddleware(req, res, next){
         const decoded = jwt.verify(token, config.JWT_SECRET);
 
         req.fullName = decoded.fullName;
-        req.userID = decoded.userID;
+        req.userID = decoded.id;
         req.role = decoded.role;
 
         if(!decoded || decoded.role !== "artist"){

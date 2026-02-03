@@ -9,46 +9,48 @@ const imagekit = new ImageKit({
 
 export const uploadMusic = async (file) => {
   try {
-    imagekit.upload(
-      {
-        file: file.buffer,
-        fileName: file.originalname,
-        folder: "/spotify-piper/music",
-        useUniqueFileName: true,
-      },
-      function (error, result) {
-        if (error) {
-          console.error("Error uploading music:", error);
-        } else {
-          console.log("Music uploaded successfully:", result);
-          return result;
-        }
-      },
-    );
+    const result = await new Promise((resolve, reject) => {
+      imagekit.upload(
+        {
+          file: file.buffer,
+          fileName: file.originalname,
+          folder: "/spotify-piper/music",
+          useUniqueFileName: true,
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        },
+      );
+    });
+
+    return result;
   } catch (error) {
-    console.error("Error uploading music:", error.message || error);
+    console.error("Error uploading music:", error);
+    throw error;
   }
 };
 
 export const uploadImage = async (file) => {
   try {
-    imagekit.upload(
-      {
-        file: file.buffer,
-        fileName: file.originalname,
-        folder: "/spotify-piper/images",
-        useUniqueFileName: true,
-      },
-      function (error, result) {
-        if (error) {
-          console.error("Error uploading image:", error);
-        } else {
-          console.log("Image uploaded successfully:", result);
-          return result;
-        }
-      },
-    );
+    const result = await new Promise((resolve, reject) => {
+      imagekit.upload(
+        {
+          file: file.buffer,
+          fileName: file.originalname,
+          folder: "/spotify-piper/images",
+          useUniqueFileName: true,
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        },
+      );
+    });
+
+    return result;
   } catch (error) {
-    console.error("Error uploading image:", error.message || error);
+    console.error("Error uploading image:", error);
+    throw error;
   }
 };
