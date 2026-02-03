@@ -41,6 +41,7 @@ export async function registerUser(req, res) {
       {
         id: newUser._id,
         role: newUser.role,
+        fullName: newUser.fullName,
       },
       config.JWT_SECRET,
       { expiresIn: "7d" },
@@ -83,6 +84,7 @@ export async function googleOAuthCallback(req, res) {
         {
           id: existingUser._id,
           role: existingUser.role,
+          fullName : existingUser.fullName,
         },
         config.JWT_SECRET,
         { expiresIn: "7d" },
@@ -113,6 +115,7 @@ export async function googleOAuthCallback(req, res) {
         {
           id: newUser._id,
           role: newUser.role,
+          fullName: newUser.fullName,
         },
         config.JWT_SECRET,
         { expiresIn: "7d" },
@@ -165,6 +168,7 @@ export async function loginUser(req, res){
       {
         id: existingUser._id,
         role: existingUser.role,
+        fullName: existingUser.fullName,
       },
       config.JWT_SECRET,
       { expiresIn: "7d" },
