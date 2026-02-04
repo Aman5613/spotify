@@ -1,20 +1,22 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
-
     const navigate = useNavigate();
+    const { register } = useAuth();
 
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
-        password: ''
+        password: '',
+        role: 'user' // Default role
     });
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -25,32 +27,37 @@ export default function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Register form submitted:', formData);
-        // Handle registration logic here
+        setLoading(true);
+        setError(null);
 
-        try {
-            const response = await axios.post('http://localhost:3000/api/v1/auth/register', {
-                fullName: {
-                    firstName: formData.firstName,
-                    lastName: formData.lastName
-                },
-                email: formData.email,
-                password: formData.password
-            });
+        const registrationData = {
+            fullName: {
+                firstName: formData.firstName,
+                lastName: formData.lastName
+            },
+            email: formData.email,
+            password: formData.password,
+            role: formData.role
+        };
 
-            console.log("response : ", response.data.message);
+        const result = await register(registrationData);
 
-            navigate('/');
-
-        } catch (error) {
-            console.log("error in registering : ", error?.response?.data?.message || error.message);
+        if (result.success) {
+            // Redirect based on user role
+            if (result.user.role === 'artist') {
+                navigate('/artist/dashboard');
+            } else {
+                navigate('/');
+            }
+        } else {
+            setError(result.error);
         }
+
+        setLoading(false);
     };
 
     const handleGoogleAuth = async () => {
-        console.log('Continue with Google clicked');
-        // Handle Google OAuth logic here
-
+        window.location.href = "http://localhost:3000/api/v1/auth/google";
     };
 
     return (
@@ -72,6 +79,12 @@ export default function Register() {
                         Join us and start your journey
                     </p>
                 </div>
+
+                {error && (
+                    <div className="alert alert-error mb-3">
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -112,9 +125,47 @@ export default function Register() {
                         label="Password"
                     />
 
+                    <div className="form-group">
+                        <label className="form-label">Register as</label>
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <label style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                flex: 1
+                            }}>
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="user"
+                                    checked={formData.role === 'user'}
+                                    onChange={handleChange}
+                                    style={{ marginRight: '0.5rem' }}
+                                />
+                                <span>Listener</span>
+                            </label>
+                            <label style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                flex: 1
+                            }}>
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="artist"
+                                    checked={formData.role === 'artist'}
+                                    onChange={handleChange}
+                                    style={{ marginRight: '0.5rem' }}
+                                />
+                                <span>Artist</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <div className="mt-3">
-                        <Button type="submit" variant="primary">
-                            Create Account
+                        <Button type="submit" variant="primary" disabled={loading}>
+                            {loading ? 'Creating Account...' : 'Create Account'}
                         </Button>
                     </div>
 

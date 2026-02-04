@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -22,27 +24,27 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Login form submitted:', formData);
-        // Handle login logic here
-        try {
-            const response = await axios.post('http://localhost:3000/api/v1/auth/login', {
-                email: formData.email,
-                password: formData.password
-            });
+        setLoading(true);
+        setError(null);
 
-            console.log("response : ", response.data.message);
+        const result = await login(formData.email, formData.password);
 
-            navigate('/');
-
-        } catch (error) {
-            console.log("error in logging in : ", error?.response?.data?.message || error.message);
+        if (result.success) {
+            // Redirect based on user role
+            if (result.user.role === 'artist') {
+                navigate('/artist/dashboard');
+            } else {
+                navigate('/');
+            }
+        } else {
+            setError(result.error);
         }
+
+        setLoading(false);
     };
 
     const handleGoogleAuth = async () => {
-        console.log('Continue with Google clicked');
-        // Handle Google OAuth logic here
-        
+        window.location.href = "http://localhost:3000/api/v1/auth/google";
     };
 
     return (
@@ -64,6 +66,12 @@ export default function Login() {
                         Sign in to your account
                     </p>
                 </div>
+
+                {error && (
+                    <div className="alert alert-error mb-3">
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit}>
                     <Input
@@ -98,8 +106,8 @@ export default function Login() {
                         </a>
                     </div>
 
-                    <Button type="submit" variant="primary">
-                        Sign In
+                    <Button type="submit" variant="primary" disabled={loading}>
+                        {loading ? 'Signing In...' : 'Sign In'}
                     </Button>
 
                     <div style={{

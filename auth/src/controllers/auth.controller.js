@@ -55,7 +55,8 @@ export async function registerUser(req, res) {
       message: "user registered successfully",
       success: true,
       error: false,
-      data: newUser,
+      user: newUser,
+      token: token
     });
   } catch (error) {
     return res.status(500).json({
@@ -98,7 +99,8 @@ export async function googleOAuthCallback(req, res) {
         message: "Google user login successful",
         success: true,
         error: false,
-        data: existingUser,
+        user: existingUser,
+        token: token
       });
     } else {
       // Create a new user
@@ -130,7 +132,8 @@ export async function googleOAuthCallback(req, res) {
         message: "Google user registration successful",
         success: true,
         error: false,
-        data: newUser,
+        user: newUser,
+        token: token
       });
     }
 
@@ -179,7 +182,8 @@ export async function loginUser(req, res){
       message : "User logged in successfully",
       success : true,
       error : false,
-      data : existingUser
+      user : existingUser,
+      token : token
     })
     
   } catch (error) {

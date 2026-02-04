@@ -4,30 +4,30 @@ import MusicCard from '../components/MusicCard';
 import PlaylistCard from '../components/PlaylistCard';
 import { songsAPI, playlistsAPI } from '../services/api';
 
-export default function Home() {
+export default function ArtistDashboard() {
     const [songs, setSongs] = useState([]);
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchContent();
+        fetchArtistContent();
     }, []);
 
-    const fetchContent = async () => {
+    const fetchArtistContent = async () => {
         try {
             setLoading(true);
             const [songsResponse, playlistsResponse] = await Promise.all([
-                songsAPI.getAll(),
-                playlistsAPI.getAll()
+                songsAPI.getArtistSongs(),
+                playlistsAPI.getArtistPlaylists()
             ]);
 
-            setSongs(songsResponse.data.music || []);
+            setSongs(songsResponse.data.songs || []);
             setPlaylists(playlistsResponse.data.playlists || []);
             setError(null);
         } catch (err) {
-            console.error('Error fetching content:', err);
-            setError('Failed to load content');
+            console.error('Error fetching artist content:', err);
+            setError('Failed to load your content');
         } finally {
             setLoading(false);
         }
@@ -38,20 +38,20 @@ export default function Home() {
             <Navbar />
 
             <div className="container" style={{ paddingTop: '2rem' }}>
-                <div className="home-header">
-                    <h1>Discover Music</h1>
-                    <p className="home-subtitle">Explore songs and playlists</p>
+                <div className="dashboard-header">
+                    <h1>Artist Dashboard</h1>
+                    <p className="dashboard-subtitle">Manage your music and playlists</p>
                 </div>
 
                 {loading ? (
                     <div className="loading-state">
                         <div className="spinner"></div>
-                        <p>Loading music...</p>
+                        <p>Loading your content...</p>
                     </div>
                 ) : error ? (
                     <div className="error-state">
                         <p>{error}</p>
-                        <button onClick={fetchContent} className="btn btn-primary">
+                        <button onClick={fetchArtistContent} className="btn btn-primary">
                             Try Again
                         </button>
                     </div>
@@ -59,7 +59,7 @@ export default function Home() {
                     <>
                         <section className="content-section">
                             <div className="section-header">
-                                <h2>All Songs</h2>
+                                <h2>Your Songs</h2>
                                 <span className="section-count">{songs.length} songs</span>
                             </div>
                             {songs.length > 0 ? (
@@ -70,14 +70,17 @@ export default function Home() {
                                 </div>
                             ) : (
                                 <div className="empty-state">
-                                    <p>No songs available</p>
+                                    <p>No songs uploaded yet</p>
+                                    <a href="/artist/upload" className="btn btn-primary">
+                                        Upload Your First Song
+                                    </a>
                                 </div>
                             )}
                         </section>
 
                         <section className="content-section">
                             <div className="section-header">
-                                <h2>Playlists</h2>
+                                <h2>Your Playlists</h2>
                                 <span className="section-count">{playlists.length} playlists</span>
                             </div>
                             {playlists.length > 0 ? (
@@ -88,7 +91,7 @@ export default function Home() {
                                 </div>
                             ) : (
                                 <div className="empty-state">
-                                    <p>No playlists available</p>
+                                    <p>No playlists created yet</p>
                                 </div>
                             )}
                         </section>

@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import passport from 'passport';
 import {Strategy as GoogleStrategy} from "passport-google-oauth20"
 import cors from 'cors';
+import userModel from './models/user.model.js';
 
 
 import authRouter from "../src/routes/auth.route.js";
@@ -26,15 +27,50 @@ app.use("/api/v1/auth", authRouter);
 app.use(passport.initialize());
 
 // Configure Passport to use Google OAuth 2.0 strategy
-passport.use(new GoogleStrategy({
-  clientID: config.CLIENT_ID,
-  clientSecret: config.CLIENT_SECRET,
-  callbackURL: '/api/v1/auth/google/callback',
-}, (accessToken, refreshToken, profile, done) => {
-  // Here, you would typically find or create a user in your database
-  // For this example, we'll just return the profile
-  return done(null, profile);
-}));
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: config.CLIENT_ID,
+      clientSecret: config.CLIENT_SECRET,
+      callbackURL: "/api/v1/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const existingUser = await userModel.findOne({
+          $or: [
+            { googleId: profile.id },
+            { email: profile.emails?.[0]?.value },
+          ],
+        });
+
+        let user;
+
+        if (existingUser) {
+          // Link Google account if not linked
+          if (!existingUser.googleId) {
+            existingUser.googleId = profile.id;
+            await existingUser.save();
+          }
+          user = existingUser;
+        } else {
+          user = await userModel.create({
+            googleId: profile.id,
+            email: profile.emails?.[0]?.value,
+            fullName: {
+              firstName: profile.name.givenName,
+              lastName: profile.name.familyName,
+            },
+          });
+        }
+
+        return done(null, user);
+
+      } catch (err) {
+        return done(err, null);
+      }
+    },
+  ),
+);
 
 
 export default app;

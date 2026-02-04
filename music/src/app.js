@@ -14,12 +14,10 @@ app.use(cors({
 }))
 app.use(morgan('dev'));
 app.use(cookieParser());
-
-app.use("/api/music", musicRouter);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/api/music", musicRouter);
 
 
 app.get("/", (req, res) => {
